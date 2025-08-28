@@ -1,4 +1,4 @@
-module github.com/emiago/diago
+module github.com/vertan/diago
 
 go 1.23.0
 
