@@ -15,9 +15,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/emiago/diago/media"
 	"github.com/emiago/sipgo"
 	"github.com/emiago/sipgo/sip"
+	"github.com/vertan/diago/media"
 )
 
 type ServeDialogFunc func(d *DialogServerSession)

@@ -16,11 +16,11 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/emiago/diago/media/sdp"
 	"github.com/emiago/sipgo/sip"
 	"github.com/pion/rtcp"
 	"github.com/pion/rtp"
 	"github.com/pion/srtp/v3"
+	"github.com/vertan/diago/media/sdp"
 )
 
 var (

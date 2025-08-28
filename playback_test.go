@@ -10,9 +10,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/emiago/diago/media"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"github.com/vertan/diago/media"
 )
 
 func TestIntegrationStreamWAV(t *testing.T) {

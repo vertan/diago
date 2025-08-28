@@ -8,9 +8,9 @@ import (
 	"io"
 	"testing"
 
-	"github.com/emiago/diago/media"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"github.com/vertan/diago/media"
 )
 
 func TestBridgeProxy(t *testing.T) {

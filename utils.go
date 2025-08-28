@@ -11,8 +11,8 @@ import (
 	"net/http/httputil"
 	"sync"
 
-	"github.com/emiago/diago/media"
 	"github.com/pion/rtp"
+	"github.com/vertan/diago/media"
 )
 
 var rtpBufPool = sync.Pool{

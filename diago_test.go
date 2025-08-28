@@ -12,14 +12,14 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/emiago/diago/audio"
-	"github.com/emiago/diago/examples"
-	"github.com/emiago/diago/media"
-	"github.com/emiago/diago/media/sdp"
 	"github.com/emiago/sipgo"
 	"github.com/emiago/sipgo/sip"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"github.com/vertan/diago/audio"
+	"github.com/vertan/diago/examples"
+	"github.com/vertan/diago/media"
+	"github.com/vertan/diago/media/sdp"
 )
 
 func testDiagoClient(t *testing.T, onRequest func(req *sip.Request) *sip.Response, opts ...DiagoOption) *Diago {

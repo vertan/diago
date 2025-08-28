@@ -5,10 +5,10 @@ import (
 	"os"
 	"testing"
 
-	"github.com/emiago/diago/audio"
-	"github.com/emiago/diago/media"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"github.com/vertan/diago/audio"
+	"github.com/vertan/diago/media"
 )
 
 func TestIntegrationRecordingStereoWav(t *testing.T) {

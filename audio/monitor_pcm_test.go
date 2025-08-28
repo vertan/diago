@@ -6,10 +6,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/emiago/diago/media"
 	"github.com/pion/rtp"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"github.com/vertan/diago/media"
 )
 
 type rtpBuffer struct {

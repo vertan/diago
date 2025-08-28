@@ -13,8 +13,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/emiago/diago/audio"
-	"github.com/emiago/diago/media"
+	"github.com/vertan/diago/audio"
+	"github.com/vertan/diago/media"
 )
 
 var (

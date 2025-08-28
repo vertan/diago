@@ -3,7 +3,7 @@ package diago
 import (
 	"errors"
 
-	"github.com/emiago/diago/audio"
+	"github.com/vertan/diago/audio"
 )
 
 type AudioStereoRecordingWav struct {

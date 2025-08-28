@@ -11,7 +11,7 @@ import (
 	"net"
 	"time"
 
-	"github.com/emiago/diago/media"
+	"github.com/vertan/diago/media"
 )
 
 type Bridger interface {
