@@ -13,6 +13,7 @@ type RTPDtmfReader struct {
 	codec        Codec // Depends on media session. Defaults to 101 per current mapping
 	reader       io.Reader
 	packetReader *RTPPacketReader
+	minDuration  uint16 // Minimum DTMF duration to consider valid
 
 	lastEv  DTMFEvent
 	dtmf    rune
@@ -26,6 +27,7 @@ func NewRTPDTMFReader(codec Codec, packetReader *RTPPacketReader, reader io.Read
 		codec:        codec,
 		packetReader: packetReader,
 		reader:       reader,
+		minDuration:  3 * 160, // ~50ms
 		// dmtfs:        make([]rune, 0, 5), // have some
 	}
 }
@@ -70,8 +72,8 @@ func (w *RTPDtmfReader) processDTMFEvent(ev DTMFEvent) {
 		}
 
 		dur := ev.Duration - w.lastEv.Duration
-		if dur <= 3*160 { // Expect at least ~50ms duration
-			DefaultLogger().Debug("Received DTMF packet but short duration", "dur", dur)
+		if dur <= w.minDuration {
+			DefaultLogger().Debug("Received DTMF packet but short duration", "dur", dur, "minDuration", w.minDuration)
 			return
 		}
 
