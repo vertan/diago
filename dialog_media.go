@@ -648,10 +648,11 @@ type DTMFReader struct {
 
 // AudioReaderDTMF is DTMF over RTP. It reads audio and provides hook for dtmf while listening for audio
 // Use Listen or OnDTMF after this call
-func (m *DialogMedia) AudioReaderDTMF() *DTMFReader {
+// minDuration is optional minimum DTMF duration in timestamp units (default is 3*160 = 60ms at 8kHz)
+func (m *DialogMedia) AudioReaderDTMF(minDuration ...uint16) *DTMFReader {
 	ar, _ := m.AudioReader()
 	return &DTMFReader{
-		dtmfReader:   media.NewRTPDTMFReader(media.CodecTelephoneEvent8000, m.RTPPacketReader, ar),
+		dtmfReader:   media.NewRTPDTMFReader(media.CodecTelephoneEvent8000, m.RTPPacketReader, ar, minDuration...),
 		mediaSession: m.mediaSession,
 	}
 }

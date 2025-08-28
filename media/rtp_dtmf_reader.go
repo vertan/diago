@@ -22,12 +22,18 @@ type RTPDtmfReader struct {
 
 // RTP DTMF writer is midleware for reading DTMF events
 // It reads from io Reader and checks packet Reader
-func NewRTPDTMFReader(codec Codec, packetReader *RTPPacketReader, reader io.Reader) *RTPDtmfReader {
+// minDuration is the minimum DTMF duration in timestamp units (default is 3*160 = 60ms at 8kHz)
+func NewRTPDTMFReader(codec Codec, packetReader *RTPPacketReader, reader io.Reader, minDuration ...uint16) *RTPDtmfReader {
+	minDur := uint16(3 * 160) // Default: 60ms at 8kHz (3 * 20ms frames = 60ms)
+	if len(minDuration) > 0 {
+		minDur = minDuration[0]
+	}
+
 	return &RTPDtmfReader{
 		codec:        codec,
 		packetReader: packetReader,
 		reader:       reader,
-		minDuration:  3 * 160, // ~50ms
+		minDuration:  minDur,
 		// dmtfs:        make([]rune, 0, 5), // have some
 	}
 }
