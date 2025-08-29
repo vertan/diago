@@ -59,7 +59,10 @@ func (w *RTPDtmfReader) Read(b []byte) (int, error) {
 
 func (w *RTPDtmfReader) processDTMFEvent(ev DTMFEvent) {
 	// Get current RTP timestamp for duplicate detection
-	timestamp := w.packetReader.PacketHeader.Timestamp
+	var timestamp uint32
+	if w.packetReader != nil {
+		timestamp = w.packetReader.PacketHeader.Timestamp
+	}
 
 	if DefaultLogger().Handler().Enabled(context.Background(), slog.LevelDebug) {
 		DefaultLogger().Debug("Processing DTMF event", "ev", ev, "timestamp", timestamp)
