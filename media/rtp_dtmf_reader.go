@@ -13,28 +13,23 @@ type RTPDtmfReader struct {
 	codec        Codec // Depends on media session. Defaults to 101 per current mapping
 	reader       io.Reader
 	packetReader *RTPPacketReader
-	minDuration  uint16 // Minimum DTMF duration to consider valid
 
-	lastEv  DTMFEvent
-	dtmf    rune
-	dtmfSet bool
+	lastEvent     uint8  // Last DTMF event number
+	lastTimestamp uint32 // RTP timestamp of current DTMF event
+	endProcessed  bool   // Whether we've already processed the end event
+	dtmf          rune
+	dtmfSet       bool
 }
 
-// RTP DTMF writer is midleware for reading DTMF events
+// RTP DTMF reader is middleware for reading DTMF events
 // It reads from io Reader and checks packet Reader
-// minDuration is the minimum DTMF duration in timestamp units (default is 3*160 = 60ms at 8kHz)
 func NewRTPDTMFReader(codec Codec, packetReader *RTPPacketReader, reader io.Reader, minDuration ...uint16) *RTPDtmfReader {
-	minDur := uint16(3 * 160) // Default: 60ms at 8kHz (3 * 20ms frames = 60ms)
-	if len(minDuration) > 0 {
-		minDur = minDuration[0]
-	}
-
+	// minDuration parameter kept for backward compatibility but ignored
 	return &RTPDtmfReader{
 		codec:        codec,
 		packetReader: packetReader,
 		reader:       reader,
-		minDuration:  minDur,
-		// dmtfs:        make([]rune, 0, 5), // have some
+		lastEvent:    255, // Initialize to invalid event number
 	}
 }
 
@@ -63,35 +58,40 @@ func (w *RTPDtmfReader) Read(b []byte) (int, error) {
 }
 
 func (w *RTPDtmfReader) processDTMFEvent(ev DTMFEvent) {
+	// Get current RTP timestamp for duplicate detection
+	timestamp := w.packetReader.PacketHeader.Timestamp
+
 	if DefaultLogger().Handler().Enabled(context.Background(), slog.LevelDebug) {
-		// Expensive call on logger
-		DefaultLogger().Debug("Processing DTMF event", "ev", ev)
+		DefaultLogger().Debug("Processing DTMF event", "ev", ev, "timestamp", timestamp)
 	}
-	if ev.EndOfEvent {
-		if w.lastEv.Duration == 0 {
-			return
-		}
-		// Does this match to our last ev
-		// Consider Event can be 0, that is why we check is also lastEv.Duration set
-		if w.lastEv.Event != ev.Event {
-			return
-		}
 
-		dur := ev.Duration - w.lastEv.Duration
-		if dur <= w.minDuration {
-			DefaultLogger().Debug("Received DTMF packet but short duration", "dur", dur, "minDuration", w.minDuration)
-			return
-		}
+	// Check if this is a new DTMF event (different digit or different timestamp)
+	isNewEvent := w.lastEvent != ev.Event || w.lastTimestamp != timestamp
 
+	if isNewEvent {
+		// New DTMF event starting - reset tracking state
+		w.lastEvent = ev.Event
+		w.lastTimestamp = timestamp
+		w.endProcessed = false
+
+		// If it's already an end event, process it immediately
+		if ev.EndOfEvent {
+			w.dtmf = DTMFToRune(ev.Event)
+			w.dtmfSet = true
+			w.endProcessed = true
+			DefaultLogger().Debug("New DTMF event with immediate end", "digit", w.dtmf)
+		}
+	} else if ev.EndOfEvent && !w.endProcessed {
+		// End of current event - process only once
 		w.dtmf = DTMFToRune(ev.Event)
 		w.dtmfSet = true
-		w.lastEv = DTMFEvent{}
-		return
+		w.endProcessed = true
+		DefaultLogger().Debug("DTMF end event processed", "digit", w.dtmf, "duration", ev.Duration)
+	} else if ev.EndOfEvent && w.endProcessed {
+		// Duplicate end event (RFC 2833 sends 3) - ignore
+		DefaultLogger().Debug("Ignoring duplicate DTMF end event", "event", ev.Event)
 	}
-	if w.lastEv.Duration > 0 && w.lastEv.Event == ev.Event {
-		return
-	}
-	w.lastEv = ev
+	// For continuation packets (not end), we just track them but don't report
 }
 
 func (w *RTPDtmfReader) ReadDTMF() (rune, bool) {
